@@ -44,7 +44,7 @@ El segundo archivo de configuración, mongo.source.properties, inicializa un Mon
 
 El archivo de configuración mongo.sink.properties inicializa un MongoDB Sink Connector. Este permite que, al recibir un mensaje en un tópico Kafka, se realice una modificación en una colección MongoDB. Para nuestro caso sólo necesitamos conectar un tópico, boletia.eventos, con la colección inventario, aunque de ser necesario se pueden especificar más conexiones. El documento en formato JSON que llegue en el mensaje del tópico boletia.eventos deberá tener la estructura deseada para la colección inventario. 
 
-La concepción de nuestra aplicación define sólo hacer inserciones o updates de las colecciones (no hay delete). Con el MongoDB Source y Sink ¿qué tememos?
+La concepción de nuestra aplicación define sólo hacer inserciones o updates de las colecciones (no hay delete). Con el MongoDB Source y Sink ¿qué tenemos?
 
 - Una inserción o update en una colección de la BD, genera un mensaje en el correspondiente tópico de Kafka, que contiene el documento tal como quedó.
 - Un mensaje en el tópico kafka.eventos inserta o hace update de un documento en la colección inventario.
