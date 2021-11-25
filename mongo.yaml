@@ -1,0 +1,153 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mongo
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-0
+  namespace: mongo
+spec:
+  selector:
+    app: mongo
+    statefulset.kubernetes.io/pod-name: mongo-0
+  ports:
+    - protocol: TCP
+      port: 27017
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-1
+  namespace: mongo
+spec:
+  selector:
+    app: mongo
+    statefulset.kubernetes.io/pod-name: mongo-1
+  ports:
+    - protocol: TCP
+      port: 27017
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-2
+  namespace: mongo
+spec:
+  selector:
+    app: mongo
+    statefulset.kubernetes.io/pod-name: mongo-2
+  ports:
+    - protocol: TCP
+      port: 27017
+---
+apiVersion: v1
+metadata:
+  name: mongo-secret
+  namespace: mongo
+data:
+  user: cm9vdA==
+  pass: ZXhhbXBsZQ==
+kind: Secret
+type: Opaque
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mongo-init
+  namespace: mongo
+data:
+  init.sh: |
+    #!/bin/bash
+    inicia() {
+      # Wait for last replica ready
+      until mongo mongo-2 --eval 'printjson(db.serverStatus())'; do
+        sleep 2
+      done
+      mongo --eval="printjson(rs.initiate( \
+          { \
+            '_id' : 'rs0', \
+            members: [ \
+              { '_id': 0, host: 'mongo-0:27017' }, \
+              { '_id': 1, host: 'mongo-1:27017' }, \
+              { '_id': 2, host: 'mongo-2:27017' } \
+            ] \
+          }))"
+    }
+    if [[ "${HOSTNAME}" == 'mongo-0' ]]; then
+      inicia &
+    fi    
+    mongod --replSet rs0 --bind_ip localhost,${HOSTNAME}
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mongo
+  namespace: mongo
+spec:
+  serviceName: mongo
+  replicas: 3
+  selector:
+      matchLabels:
+        app: mongo
+  template:
+    metadata:
+      labels:
+        app: mongo
+    spec: 
+      volumes:
+      - name: config
+        configMap:
+          name: "mongo-init" 
+      - name: vdata
+        hostPath:
+          path: /vdata        
+      containers:
+      - name: mongo
+        image: mongo
+        imagePullPolicy: Never        
+        command:
+        - bash
+        - /config/init.sh
+        volumeMounts:
+        - name: config
+          mountPath: /config
+        - name: vdata
+          mountPath: /data/db
+          subPathExpr: $(POD_NAME)          
+        resources:
+            limits:
+              cpu: 200m
+              memory: 500Mi
+            requests:
+              cpu: 100m
+              memory: 200Mi
+        env:
+        - name: MONGO_INITDB_ROOT_USERNAME
+          valueFrom:
+              secretKeyRef:
+                name: mongo-secret
+                key: user
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          valueFrom:
+              secretKeyRef:
+                name: mongo-secret
+                key: pass
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name  
+        ports:
+        - containerPort:  27017
+          protocol: TCP
+        livenessProbe:
+          exec:
+            command:
+            - mongo
+            - --eval
+            - db.serverStatus()
+          initialDelaySeconds: 180
+          timeoutSeconds: 10  
+

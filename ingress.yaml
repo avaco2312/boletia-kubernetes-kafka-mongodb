@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-nginx
+  namespace: clientes
+spec:
+  rules:
+  - http:
+      paths:
+      - pathType: Prefix
+        path: "/eventos"
+        backend:
+          service:
+            name: eventos
+            port:
+              number: 8070
+      - pathType: Prefix
+        path: "/reservas"
+        backend:
+          service:
+            name: reservas
+            port:
+              number: 8071     
