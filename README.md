@@ -290,7 +290,7 @@ Connection: close
 }
 ```
 
-Después de canecalrla:
+Después de cancelarla:
 
 ```code
 curl -X GET http://localhost/reservas/eventos/Opera%20Boheme
