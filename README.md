@@ -1,4 +1,5 @@
-##Prueba de concepto: Boletia, una aplicación (simplificada) para venta de boletos,  basada en microservicios event-driven.
+## Prueba de concepto: Boletia, una aplicación para venta de boletos,  basada en microservicios event-driven.
+
 **Desarrollada sobre Kubernetes, un cluster Kafka (3 brokers), un cluster MongoDB (3 réplicas), Kafka Connect y MongoDB Connector, y un módulo go, pcKafka, productor-consumidor de Kafka.**
 
 ![Boletia](Boletia.png)
@@ -454,36 +455,36 @@ Y se publica, MongoDB Surce Coonect, en el tópico boletia.inventario.
 Veamos como maneja este mensaje el microservicio inventario:
 
 ```code
-	case "boletia.inventario":
-		reserva := contratos.DetReserva{}
-		err = json.Unmarshal([]byte(b), &reserva)
-		if err != nil {
-			return err
-		}
-		ses := sep.Copy()
-		defer ses.Close()
-		switch reserva.Estado {
-		case "A":
-			switch {
-			case reserva.Cantidad == 0:
-				return nil
-			case reserva.Cantidad > 0:
-				err = ses.DB("boletia").C("reservas").Insert(&reserva)
-				if err != nil {
-					if mgo.IsDup(err) {
-						return nil
-					}
+case "boletia.inventario":
+	reserva := contratos.DetReserva{}
+	err = json.Unmarshal([]byte(b), &reserva)
+	if err != nil {
+		return err
+	}
+	ses := sep.Copy()
+	defer ses.Close()
+	switch reserva.Estado {
+	case "A":
+		switch {
+		case reserva.Cantidad == 0:
+			return nil
+		case reserva.Cantidad > 0:
+			err = ses.DB("boletia").C("reservas").Insert(&reserva)
+			if err != nil {
+				if mgo.IsDup(err) {
+					return nil
 				}
-				return err
-			default:
-				return nil
 			}
-		case "C":
-			_, err = ses.DB("boletia").C("reservas").UpdateAll(
-				bson.D{{Name: "evento", Value: reserva.Evento}, {Name: "estado", Value: "A"}},
-				bson.D{{Name: "$set", Value: bson.D{{Name: "estado", Value: "C"}}}})
 			return err
+		default:
+			return nil
 		}
+	case "C":
+		_, err = ses.DB("boletia").C("reservas").UpdateAll(
+			bson.D{{Name: "evento", Value: reserva.Evento}, {Name: "estado", Value: "A"}},
+			bson.D{{Name: "$set", Value: bson.D{{Name: "estado", Value: "C"}}}})
+		return err
+	}
 ```
 
 Primero discrimina que el mensaje sea del tópico boletia.inventario y en ese caso, pone los datos pasados en una estructura go. Esta estructura, DetReserva, se define, como todas las estructuras usadas, en clientes-go/contratos. La definición allí hace un "malabarismo" para que en el Unmarshall solo se obtengan los datos de la reserva y además cambiar los nombres idres y canres por id y cantidad.
