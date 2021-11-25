@@ -257,7 +257,7 @@ return err
 
 Sin entrar en todos los detalles:
 
-- El change es un update al evento correspondiente a la reserva, cuyo documento se localiza en el Find mediante nombre == reserva.Evento (escrito en bson). Se chequea que el estado del evento (no de la reserva) es "A", activa. Esto para el raro caso de que, en el interim entre que el cliente canceló de la reserva y este momento, el cliente de Admin (los administradores de eventos) haya cancelado el evento (no la reserva). En ese caso ya no importa actualizar el inventario de un evento cancelado en su totalidad.
+- El change es un update al evento correspondiente a la reserva, cuyo documento se localiza en el Find mediante nombre == reserva.Evento (escrito en bson). Se chequea que el estado del evento (no de la reserva) es "A", activa. Esto para el raro caso de que, en el interim entre que el cliente canceló la reserva y este momento, el cliente de Admin (los administradores de eventos) haya cancelado el evento (no la reserva). En ese caso ya no importa actualizar el inventario de un evento cancelado en su totalidad.
 - El change define una actualización, update, que incrementa la disponibilidad del evento en la cantidad de boletos que ocupaba la reserva cancelada (escrito en bson)
 
 ```code
