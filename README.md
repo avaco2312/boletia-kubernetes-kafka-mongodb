@@ -392,8 +392,10 @@ Un ejemplo de reserva es:
 
 Los puntos de acceso para modificar las reservas son:
 
+```code
 r.HandleFunc("/reservas", postReserva).Methods("POST")
 r.HandleFunc("/reservas/{id}", deleteReservaId).Methods("DELETE")
+```
 
 El primero crea una reserva y el segundo la cancela (realmente la modifica, pasando su estado de "A" a "X)(segunda nota: las reservas canceladas realmente serán de dos categorías "C" y "X", la primera cuando los administradores cancelan el evento y se interpreta como "evento suspendido por los organizadores". La segunda "X" es la que maneja este microservicio y significa "cancelada a petición del cliente")
 
