@@ -527,6 +527,8 @@ La dirección email de envío (la empresa de boletería) se especifica como vari
 
 También es necesario crear una cuenta en AWS SES, registrar y verificar las direcciones de email desde las que se va a enviar o recibir. En un caso real se puede pactar con AWS para quitar este requisito. Pero para nuestro ejemplo sólo podremos hacerlo con esta limitación. Es por ello que en el microservicio obviamos los mensajes no enviados por errores de ese tipo (los confirmamos a Kafka).
 
+Y para este microservicio no tenemos forma de "crear idempotencia". Esperemos que el cliente no se moleste en el raro caso de que le llegue el mismo email más de una vez (usamos la técnica del avestruz). Pero se garantiza que le llegue siempre, al menos una vez.
+
 Y con esto terminamos. ¿Qué quedaría pendiente? Bueno, en un caso real, casi todo. No hemos planificado o diseñado los recursos, hemos obviado validaciones, usado parámetros por default, ... Tampoco hemos comentado el código, ni creado los mecanismos para monitorear el funcionamiento y el rendimiento. Nuestro Kafka Connect tiene un sólo nodo, no hay mecanismos de auto-scaling, usamos Kafka con tópicos con una sola partición, lo que impediría escalar y replicar los micro-servicios. Como dijimos, faltaría un largo etc.
 
 Pero esperamos que al menos como una prueba de concepto, funcional, resulte de utilidad.
