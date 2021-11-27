@@ -525,6 +525,12 @@ El microservicio escucha el tópico boletia.reservas que contiene las reservas a
 
 El procesamiento es sencillo, recibe el mensaje y de acuerdo a su tipo (A, X o C) conforma un email adecuado y lo envía a la dirección de email de la reserva. Utiliza para ello el servicio de Amazon AWS SES (Simple Email Service).
 
+```code
+Su reserva 61a2a4c9a80e2a0001a93f36 de 3 boletos para el evento Opera Rigoletto está confirmada
+
+Su reserva 61a2a4c9a80e2a0001a93f36 de 3 boletos para el evento Opera Rigoletto fue cancelada a petición suya
+```
+
 La dirección email de envío (la empresa de boletería) se especifica como variable de ambiente en el contenedor del cliente. Para accesar Amazon necesitamos autentificarnos en AWS, aquí lo hacemos incluyendo en el contenedor un archivo de configuración de credenciales de AWS válido, lo que no es una práctica segura (implica también que no publicaremos la imagen de este contenedor, disculpen, tendrán que recrearlo con una configuración de cuenta AWS propia). Existen otras formas más seguras de autentificarse con AWS, pero esta es la más sencilla.
 
 También es necesario crear una cuenta en AWS SES, registrar y verificar las direcciones de email desde las que se va a enviar o recibir. En un caso real se puede pactar con AWS para quitar este requisito. Pero para nuestro ejemplo sólo podremos hacerlo con esta limitación. Es por ello que en el microservicio obviamos los mensajes no enviados por errores de ese tipo (los confirmamos a Kafka).
