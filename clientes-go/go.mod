@@ -16,6 +16,6 @@ require (
 	github.com/klauspost/compress v1.13.6 // indirect
 	github.com/pierrec/lz4 v2.6.0+incompatible // indirect
 	golang.org/x/crypto v0.1.0 // indirect
-	golang.org/x/net v0.1.0 // indirect
+	golang.org/x/net v0.7.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
 )
